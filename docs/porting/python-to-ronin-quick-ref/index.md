@@ -21,6 +21,7 @@ title: Porting Python to Ronin Quick Ref
 * [Datetime Methods](#datetime-methods)
 * [Sockets](#sockets)
 * [HTTP](#http)
+* [Cryptography](#cryptography)
 
 ## Literals
 
@@ -832,3 +833,77 @@ methods.
     </a>
   </div>
 </div>
+
+## Cryptography
+
+<table>
+  <thead>
+    <tr>
+      <td>Python</td>
+      <td>Ruby</td>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td>
+        <code>encrypt(self, data: bytes)</code>
+      </td>
+      <td>
+        <pre>.encrypt(path, cipher, block_size: 16384, output: nil, **kwargs)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>f = Fernet(key)
+token = f.encrypt(b"my deep dark secret")
+f.decrypt(token)</code>
+      </td>
+      <td>
+        <code>.decrypt(path, cipher, block_size: 16384, output: nil, **kwargs))</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>digest = hashes.Hash(hashes.SHA256())
+digest.update(data)
+hash_value = digest.finalize()</code>
+      </td>
+      <td>
+        <code>require 'digest'
+hash_value = Digest::SHA256.digest(data)</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>signature = private_key.sign(data, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())
+public_key.verify(signature, data, padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH), hashes.SHA256())</code>
+      </td>
+      <td>
+        <code>signature = private_key.sign(OpenSSL::Digest::SHA256.new, data)
+public_key.verify(OpenSSL::Digest::SHA256.new, signature, data)</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>parameters = dh.generate_parameters(generator=2, key_size=2048)
+private_key = parameters.generate_private_key()
+peer_public_key = private_key.exchange(peer_public_key)</code>
+      </td>
+      <td>
+        <code>dh = OpenSSL::PKey::DH.new(2048)
+private_key = dh.generate_key
+shared_secret = private_key.compute_key(peer_public_key)</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <pre>kdf = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=100000)
+key = kdf.derive(password)</pre>
+      </td>
+      <td>
+        <pre>key = OpenSSL::PKCS5.pbkdf2_hmac(password, salt, iter, 32, OpenSSL::Digest::SHA256.new)</pre>
+      </td>
+    </tr>
+  </tbody>
+</table>
